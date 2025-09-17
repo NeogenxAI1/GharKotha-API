@@ -1,5 +1,0 @@
-<script>start("/Users/mprajapati/Desktop/Files/GharKotha/GharKotha-API/auth/");</script>
-<script>onHasParentDirectory();</script>
-<script>addRow("__pycache__","__pycache__",1,128,"128 B",1758093481,"9/17/25, 1:03:01 PM");</script>
-<script>addRow("models.py","models.py",0,787,"787 B",1758093479,"9/17/25, 1:02:59 PM");</script>
-<script>addRow("utils.py","utils.py",0,1202,"1.2 kB",1758093479,"9/17/25, 1:02:59 PM");</script>

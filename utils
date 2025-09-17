@@ -1,6 +1,0 @@
-<script>start("/Users/mprajapati/Desktop/Files/GharKotha/GharKotha-API/utils/");</script>
-<script>onHasParentDirectory();</script>
-<script>addRow("__pycache__","__pycache__",1,64,"64 B",1758093474,"9/17/25, 1:02:54 PM");</script>
-<script>addRow("emailer.py","emailer.py",0,18043,"17.6 kB",1758093479,"9/17/25, 1:02:59 PM");</script>
-<script>addRow("imageupload.py","imageupload.py",0,1590,"1.6 kB",1758093479,"9/17/25, 1:02:59 PM");</script>
-<script>addRow("pdftry.py","pdftry.py",0,6773,"6.6 kB",1758093479,"9/17/25, 1:02:59 PM");</script>
