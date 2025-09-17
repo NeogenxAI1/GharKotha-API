@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     # Notification
     NOTIFY_API_URL: str
+    
+    STRIPE_API_KEY: str
 
     class Config:
         env_file = ".env"
