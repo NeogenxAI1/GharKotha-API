@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment variables
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+*._*
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Docker
+*.log
+*.pid
+*.pid.lock
+*.db
+*.sqlite3
+
+# MyPy
+.mypy_cache/
+
+# Pytest
+.cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# Python wheels
+*.whl
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
