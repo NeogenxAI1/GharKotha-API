@@ -1,0 +1,16 @@
+
+//// create virtual env
+ python -m venv .venv
+
+// go to virtural env using cmd
+.venv\Scripts\activate
+
+ // run pip to install all libraries
+ pip install -r requirments.txt
+
+ // always change to virtual environment when running app
+ .venv\Scripts\activate
+
+
+ // run app
+ fastapi dev main.py 
