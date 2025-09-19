@@ -24,6 +24,7 @@ class UserProfile(Base):
     invoice = relationship("Invoice", back_populates="user") 
     usernotification = relationship("UserNotification", back_populates="userprofile")
     
+    listings = relationship("Listing", back_populates="user_profile")
 
 class AppMinimumVersion(Base):
     __tablename__ = 'app_minimum_version'
@@ -133,3 +134,42 @@ class UserNotification(Base):
 
 class UserNotificationUpdate(BaseModel):
     is_already_viewed: bool | None = None
+
+class Listing(Base):
+    __tablename__ = "listings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_profile.user_id", ondelete="CASCADE"), nullable=False)
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+    price = Column(Integer, nullable=False)
+    status = Column(String(50), server_default="active", nullable=True)
+    views = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+
+    user_profile = relationship("UserProfile", back_populates="listings")
+    spaces = relationship("ListingSpace", back_populates="listing")
+    images = relationship("Image", back_populates="listing")
+
+class ListingSpace(Base):
+    __tablename__ = "listing_space"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listing_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    space_type = Column(String(50), nullable=False)
+    bedroom = Column(Integer, nullable=False)
+    bathroom = Column(Integer, nullable=True)
+    kitchen = Column(Integer, nullable=True)
+    square_feet = Column(Integer, nullable=False)
+    living_room = Column(Integer, nullable=True)
+    
+    listing = relationship("Listing", back_populates="spaces")# Relationship back to Listing
+
+class Image(Base):
+    __tablename__ = "image"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listing_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    image_url = Column(String, nullable=True)
+
+    listing = relationship("Listing", back_populates="images") # Relationship back to Listing

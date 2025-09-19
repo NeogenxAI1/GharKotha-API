@@ -24,6 +24,15 @@ MODEL_REGISTRY = {
     "invoice":{
         "model" : Invoice,
     },
+    "listings":{
+        "model": Listing
+    },
+    "listingspace":{
+        "model": ListingSpace
+    },
+    "image":{
+        "model": Image
+    },
     
 }  
     
@@ -36,5 +45,9 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "subscription_details" : generic_schemas.SubscriptionDetailsOutput,
     "subscription" : generic_schemas.SubscriptionOutput,
     "plan" : generic_schemas.PlanOutput,
+
+    "listings" : generic_schemas.ListingsOutput,
+    "listingspace": generic_schemas.ListingSpaceOutput,
+    "image": generic_schemas.ImageOutput,
 
 }

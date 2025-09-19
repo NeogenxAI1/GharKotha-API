@@ -74,5 +74,36 @@ class PlanOutput(BaseModel):
     class Config:
         from_attributes = True
 
+class ListingsOutput(BaseModel):
+    id: int
+    user_id: UUID
+    title: str
+    description: str
+    price: int
+    status: str | None = None
+    views: int | None = None
+    created_at: datetime | None = None
 
-        from_attributes  = True 
+    class Config:
+        from_attributes = True
+    
+class ListingSpaceOutput(BaseModel):
+    id: int
+    listing_id: int
+    space_type: str | None = None
+    bedroom: int | None = None
+    bathroom: int | None = None
+    kitchen: int | None = None
+    square_feet: int
+    living_room: int | None = None
+
+    class Config:
+        from_attributes = True
+
+class ImageOutput(BaseModel):
+    id: int
+    listing_id: int
+    image_url: str | None = None
+
+    class Config:
+        from_attributes = True
