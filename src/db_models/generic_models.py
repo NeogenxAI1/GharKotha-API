@@ -1,25 +1,22 @@
 # schemas.py
 from pydantic import BaseModel
-from sqlalchemy import CheckConstraint, Column, Integer, String, Boolean, Float, func, DateTime, ForeignKey, Interval
+from sqlalchemy import CheckConstraint, Column, Integer, String, Boolean, Float, func, DateTime, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
 from core.database import Base
 from sqlalchemy.orm import relationship
+
 class UserProfile(Base):
     __tablename__ = 'user_profile'
-    __table_args__ = (
-        CheckConstraint('age >= 10 AND age <= 100', name='user_profile_age_check'),
-    )
-
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
-    age = Column(Integer, nullable=True)
-    gender = Column(String(10), nullable=True)
-
     fcm_token = Column(String, nullable=True)
+    phone = Column(String, nullable = True)
     email = Column(String, nullable=False)
+    latitude = Column(Numeric, nullable = False)
+    longitude = Column(Numeric, nullable = False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     user_tracking_pages = relationship("UserTrackingPages", back_populates="userprofile")
