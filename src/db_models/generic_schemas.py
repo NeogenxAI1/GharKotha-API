@@ -76,7 +76,6 @@ class PlanOutput(BaseModel):
 
 class ListingsOutput(BaseModel):
     id: int
-    user_id: UUID
     title: str
     description: str
     price: int
@@ -84,6 +83,12 @@ class ListingsOutput(BaseModel):
     views: int | None = None
     created_at: datetime | None = None
 
+    contact_name: str | None = None
+    contact_number: int | None = None
+    location: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    
     class Config:
         from_attributes = True
     

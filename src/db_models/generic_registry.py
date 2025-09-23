@@ -25,7 +25,8 @@ MODEL_REGISTRY = {
         "model" : Invoice,
     },
     "listings":{
-        "model": Listing
+        "model": Listing,
+        "update_schema": ListingUpdate,
     },
     "listingspace":{
         "model": ListingSpace

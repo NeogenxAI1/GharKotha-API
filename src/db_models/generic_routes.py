@@ -479,5 +479,26 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 @custom_router.get("/version_build")
 def version():
     return {"version : 1.0.2"}
-    
+
+@custom_router.put("/update_views/{listing_id}")
+def update_listing_views(
+    listing_id: int,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        listing = db.query(MODEL_REGISTRY["listings"]["model"]).filter_by(id=listing_id).first()
+        if not listing:
+            raise HTTPException(status_code=404, detail="Listing not found")
+
+        if listing.views is None:
+            listing.views = 1
+        else:
+            listing.views += 1
+
+        db.commit()
+        db.refresh(listing)
+        return {"status_code": 200, "detail": f"Views updated to {listing.views}"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error updating views: {str(e)}")
 
