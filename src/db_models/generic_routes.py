@@ -1,6 +1,6 @@
 import os
 import tempfile
-from typing import Any, Optional
+from typing import Any, List, Literal, Optional
 from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Body, Depends, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -28,8 +28,8 @@ def get_db():
     finally:
         db.close()
 
-from src.db_models.generic_models import AppMinimumVersion, Invoice, Subscription
-from src.db_models.generic_schemas import AppVersionResponse
+from src.db_models.generic_models import AppMinimumVersion, Invoice, Listing, ListingSpace, Subscription
+from src.db_models.generic_schemas import AppVersionResponse, ListingOut
 
 @router.get("/app_version", response_model=AppVersionResponse)
 def get_app_version(db: Session = Depends(get_db)):
@@ -501,4 +501,82 @@ def update_listing_views(
         return {"status_code": 200, "detail": f"Views updated to {listing.views}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error updating views: {str(e)}")
+
+@custom_router.get("/listings", response_model=List[ListingOut])
+def get_listings(
+    sort: Literal["newest", "price_asc", "price_desc"] = Query("newest"),
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    min_square_feet: Optional[int] = None,
+    max_square_feet: Optional[int] = None,
+    bedrooms: Optional[int] = None,
+    page: int = 1,
+    page_size: int = 10,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user),
+):
+    sql = text("""
+    SELECT
+      l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
+      l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
+      MAX(s.square_feet) AS square_feet,
+      MAX(s.bedroom)     AS bedrooms,
+      COALESCE(
+        ARRAY_AGG(DISTINCT i.image_url) FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
+        ARRAY[]::varchar[]
+      ) AS images
+    FROM listings l
+    LEFT JOIN listing_space s ON s.listing_id = l.id
+    LEFT JOIN image i ON i.listing_id = l.id
+    WHERE l.status = 'active'
+      AND (:min_price IS NULL OR l.price >= :min_price)
+      AND (:max_price IS NULL OR l.price <= :max_price)
+    GROUP BY l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
+             l.contact_name, l.contact_number, l.location, l.latitude, l.longitude
+    HAVING (:min_sqft IS NULL OR MAX(s.square_feet) >= :min_sqft)
+       AND (:max_sqft IS NULL OR MAX(s.square_feet) <= :max_sqft)
+       AND (:bedrooms IS NULL OR MAX(s.bedroom) >= :bedrooms)
+    ORDER BY
+      CASE WHEN :sort = 'price_asc'  THEN l.price END ASC,
+      CASE WHEN :sort = 'price_desc' THEN l.price END DESC,
+      CASE WHEN :sort = 'newest'     THEN l.created_at END DESC,
+      l.id
+    OFFSET :offset LIMIT :limit;
+    """)
+
+    params = {
+        "min_price": min_price,
+        "max_price": max_price,
+        "min_sqft": min_square_feet,
+        "max_sqft": max_square_feet,
+        "bedrooms": bedrooms,
+        "sort": sort,
+        "offset": (page - 1) * page_size,
+        "limit": page_size,
+    }
+
+    rows = db.execute(sql, params).mappings().all()
+
+    # Map DB rows -> Pydantic
+    out: List[ListingOut] = []
+    for r in rows:
+        out.append(ListingOut(
+            id=r["id"],
+            title=r["title"],
+            description=r["description"],
+            price=float(r["price"]) if r["price"] is not None else 0.0,
+            status=r["status"],
+            views=r["views"],
+            created_at=r["created_at"],
+            contact_name=r["contact_name"],
+            contact_number=str(r["contact_number"]) if r["contact_number"] is not None else "",
+            location=r["location"],
+            latitude=float(r["latitude"]) if r["latitude"] is not None else None,
+            longitude=float(r["longitude"]) if r["longitude"] is not None else None,
+            square_feet=int(r["square_feet"]) if r["square_feet"] is not None else None,
+            bedrooms=int(r["bedrooms"]) if r["bedrooms"] is not None else None,
+            images=list(r["images"] or []),
+        ))
+
+    return out
 

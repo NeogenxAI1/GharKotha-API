@@ -110,3 +110,24 @@ class ImageOutput(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ListingOut(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    price: float
+    status: str
+    views: Optional[int] = None
+    created_at: datetime
+    contact_name: str
+    contact_number: str
+    location: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    square_feet: Optional[int] = None
+    bedrooms: Optional[int] = None
+    images: List[Optional[str]] = []
+
+    class Config:
+        from_attributes = True
