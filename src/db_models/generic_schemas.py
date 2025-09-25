@@ -8,13 +8,11 @@ from datetime import datetime
 class UserProfileOutput(BaseModel):
     first_name: str
     last_name: str
-    gender: Optional[str] = Field(None, max_length=20)
-    age: int
-    own_language_id: int | None = None
     fcm_token: Optional[str] = None
     email: str
-    language_learning_to_id: Optional[int] = None
-    audio_play_speed: Optional[float] = 1.0
+    phone: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     class Config:
         from_attributes = True
