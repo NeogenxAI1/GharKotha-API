@@ -521,57 +521,57 @@ def get_listings(
 ):
     
     sql = text("""
-    SELECT
-      l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
-      l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
-      MAX(s.square_feet) AS square_feet,
-      MAX(s.bedroom)     AS bedrooms,
-      COALESCE(
-        ARRAY_AGG(DISTINCT i.image_url) FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
-        ARRAY[]::varchar[]
-      ) AS images,
-      CASE
-        WHEN :lat IS NULL OR :lng IS NULL OR l.latitude IS NULL OR l.longitude IS NULL THEN NULL
-        ELSE 2 * 6371 * ASIN(
-          SQRT(
-            POWER(SIN(RADIANS((l.latitude  - :lat) / 2)), 2) +
-            COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
-            POWER(SIN(RADIANS((l.longitude - :lng) / 2)), 2)
-          )
-        )
-      END AS distance_km
-    FROM listings l
-    LEFT JOIN listing_space s ON s.listing_id = l.id
-    LEFT JOIN image i ON i.listing_id = l.id
-    WHERE l.status = 'active'
-      AND (:min_price IS NULL OR l.price >= :min_price)
-      AND (:max_price IS NULL OR l.price <= :max_price)
-    GROUP BY l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
-             l.contact_name, l.contact_number, l.location, l.latitude, l.longitude
-    HAVING (:min_sqft IS NULL OR MAX(s.square_feet) >= :min_sqft)
-       AND (:max_sqft IS NULL OR MAX(s.square_feet) <= :max_sqft)
-       AND (:bedrooms IS NULL OR MAX(s.bedroom) >= :bedrooms)
-       -- 👇 Distance filter only when lat/lng are provided
-       AND (
-         :lat IS NULL OR :lng IS NULL
-         OR (
-              l.latitude  IS NOT NULL AND l.longitude IS NOT NULL
-              AND 2 * 6371 * ASIN(
-                    SQRT(
-                      POWER(SIN(RADIANS((l.latitude  - :lat) / 2)), 2) +
-                      COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
-                      POWER(SIN(RADIANS((l.longitude - :lng) / 2)), 2)
-                    )
-                  ) <= :radius_km
+            SELECT
+            l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
+            l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
+            s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room,
+            COALESCE(
+                ARRAY_AGG(DISTINCT i.image_url) FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
+                ARRAY[]::varchar[]
+            ) AS images,
+            CASE
+                WHEN :lat IS NULL OR :lng IS NULL OR l.latitude IS NULL OR l.longitude IS NULL THEN NULL
+                ELSE 2 * 6371 * ASIN(
+                SQRT(
+                    POWER(SIN(RADIANS((l.latitude - :lat) / 2)), 2) +
+                    COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
+                    POWER(SIN(RADIANS((l.longitude - :lng) / 2)), 2)
+                )
+                )
+            END AS distance_km
+            FROM listings l
+            LEFT JOIN listing_space s ON s.listing_id = l.id
+            LEFT JOIN image i ON i.listing_id = l.id
+            WHERE l.status = 'active'
+            AND (:min_price IS NULL OR l.price >= :min_price)
+            AND (:max_price IS NULL OR l.price <= :max_price)
+            AND (:min_sqft IS NULL OR s.square_feet >= :min_sqft)
+            AND (:max_sqft IS NULL OR s.square_feet <= :max_sqft)
+            AND (:bedrooms IS NULL OR s.bedroom >= :bedrooms)
+            AND (
+                :lat IS NULL OR :lng IS NULL
+                OR (
+                l.latitude IS NOT NULL AND l.longitude IS NOT NULL
+                AND 2 * 6371 * ASIN(
+                        SQRT(
+                        POWER(SIN(RADIANS((l.latitude - :lat) / 2)), 2) +
+                        COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
+                        POWER(SIN(RADIANS((l.longitude - :lng) / 2)), 2)
+                        )
+                    ) <= :radius_km
+                )
             )
-       )
-    ORDER BY
-      CASE WHEN :sort = 'price_asc'  THEN l.price END ASC,
-      CASE WHEN :sort = 'price_desc' THEN l.price END DESC,
-      CASE WHEN :sort = 'newest'     THEN l.created_at END DESC,
-      l.id
-    OFFSET :offset LIMIT :limit;
-    """)
+            GROUP BY
+            l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
+            l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
+            s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room
+            ORDER BY
+            CASE WHEN :sort = 'price_asc'  THEN l.price END ASC,
+            CASE WHEN :sort = 'price_desc' THEN l.price END DESC,
+            CASE WHEN :sort = 'newest'     THEN l.created_at END DESC,
+            l.id
+            OFFSET :offset LIMIT :limit;
+            """)
 
     params = {
         "min_price": min_price,
@@ -604,8 +604,12 @@ def get_listings(
             location=r["location"],
             latitude=float(r["latitude"]) if r["latitude"] is not None else None,
             longitude=float(r["longitude"]) if r["longitude"] is not None else None,
+            space_type=r["space_type"],
+            bedrooms=int(r["bedroom"]) if r["bedroom"] is not None else None,
+            bathroom=int(r["bathroom"]) if r["bathroom"] is not None else None,
+            kitchen=int(r["kitchen"]) if r["kitchen"] is not None else None,
             square_feet=int(r["square_feet"]) if r["square_feet"] is not None else None,
-            bedrooms=int(r["bedrooms"]) if r["bedrooms"] is not None else None,
+            living_room=int(r["living_room"]) if r["living_room"] is not None else None,
             images=list(r["images"] or []),
             distance_km=float(r["distance_km"]) if "distance_km" in r and r["distance_km"] is not None else None,
         ))

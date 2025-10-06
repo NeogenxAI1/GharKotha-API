@@ -127,6 +127,10 @@ class ListingOut(BaseModel):
     longitude: Optional[float] = None
     square_feet: Optional[int] = None
     bedrooms: Optional[int] = None
+    bathroom: Optional[int] = None
+    kitchen: Optional[int] = None
+    living_room: Optional[int] = None
+    space_type: Optional[str] = None
     images: List[Optional[str]] = []
     distance_km: Optional[float] = None
 
