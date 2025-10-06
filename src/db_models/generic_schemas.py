@@ -128,6 +128,7 @@ class ListingOut(BaseModel):
     square_feet: Optional[int] = None
     bedrooms: Optional[int] = None
     images: List[Optional[str]] = []
+    distance_km: Optional[float] = None
 
     class Config:
         from_attributes = True

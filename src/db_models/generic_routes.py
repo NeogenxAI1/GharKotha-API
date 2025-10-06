@@ -510,11 +510,16 @@ def get_listings(
     min_square_feet: Optional[int] = None,
     max_square_feet: Optional[int] = None,
     bedrooms: Optional[int] = None,
+    # 👇 NEW: location params
+    lat: Optional[float] = Query(None, description="Latitude for radius filter"),
+    lng: Optional[float] = Query(None, description="Longitude for radius filter"),
+    radius_km: float = Query(5.0, ge=0.1, le=100.0, description="Radius in km"),
     page: int = 1,
     page_size: int = 10,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_active_user),
 ):
+    
     sql = text("""
     SELECT
       l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
@@ -524,7 +529,17 @@ def get_listings(
       COALESCE(
         ARRAY_AGG(DISTINCT i.image_url) FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
         ARRAY[]::varchar[]
-      ) AS images
+      ) AS images,
+      CASE
+        WHEN :lat IS NULL OR :lng IS NULL OR l.latitude IS NULL OR l.longitude IS NULL THEN NULL
+        ELSE 2 * 6371 * ASIN(
+          SQRT(
+            POWER(SIN(RADIANS((l.latitude  - :lat) / 2)), 2) +
+            COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
+            POWER(SIN(RADIANS((l.longitude - :lng) / 2)), 2)
+          )
+        )
+      END AS distance_km
     FROM listings l
     LEFT JOIN listing_space s ON s.listing_id = l.id
     LEFT JOIN image i ON i.listing_id = l.id
@@ -536,6 +551,20 @@ def get_listings(
     HAVING (:min_sqft IS NULL OR MAX(s.square_feet) >= :min_sqft)
        AND (:max_sqft IS NULL OR MAX(s.square_feet) <= :max_sqft)
        AND (:bedrooms IS NULL OR MAX(s.bedroom) >= :bedrooms)
+       -- 👇 Distance filter only when lat/lng are provided
+       AND (
+         :lat IS NULL OR :lng IS NULL
+         OR (
+              l.latitude  IS NOT NULL AND l.longitude IS NOT NULL
+              AND 2 * 6371 * ASIN(
+                    SQRT(
+                      POWER(SIN(RADIANS((l.latitude  - :lat) / 2)), 2) +
+                      COS(RADIANS(:lat)) * COS(RADIANS(l.latitude)) *
+                      POWER(SIN(RADIANS((l.longitude - :lng) / 2)), 2)
+                    )
+                  ) <= :radius_km
+            )
+       )
     ORDER BY
       CASE WHEN :sort = 'price_asc'  THEN l.price END ASC,
       CASE WHEN :sort = 'price_desc' THEN l.price END DESC,
@@ -551,13 +580,15 @@ def get_listings(
         "max_sqft": max_square_feet,
         "bedrooms": bedrooms,
         "sort": sort,
+        "lat": lat,
+        "lng": lng,
+        "radius_km": radius_km,  # defaults to 5.0 if not provided
         "offset": (page - 1) * page_size,
         "limit": page_size,
     }
 
     rows = db.execute(sql, params).mappings().all()
 
-    # Map DB rows -> Pydantic
     out: List[ListingOut] = []
     for r in rows:
         out.append(ListingOut(
@@ -576,6 +607,7 @@ def get_listings(
             square_feet=int(r["square_feet"]) if r["square_feet"] is not None else None,
             bedrooms=int(r["bedrooms"]) if r["bedrooms"] is not None else None,
             images=list(r["images"] or []),
+            distance_km=float(r["distance_km"]) if "distance_km" in r and r["distance_km"] is not None else None,
         ))
 
     return out
