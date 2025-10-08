@@ -171,7 +171,7 @@ class ListingSpace(Base):
     kitchen = Column(Integer, nullable=True)
     square_feet = Column(Integer, nullable=False)
     living_room = Column(Integer, nullable=True)
-    
+    details = Column(String, nullable=True)
     listing = relationship("Listing", back_populates="spaces")# Relationship back to Listing
 
 class Image(Base):

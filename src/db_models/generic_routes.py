@@ -524,7 +524,7 @@ def get_listings(
             SELECT
             l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
             l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
-            s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room,
+            s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room,s.details,
             COALESCE(
                 ARRAY_AGG(DISTINCT i.image_url) FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
                 ARRAY[]::varchar[]
@@ -564,7 +564,7 @@ def get_listings(
             GROUP BY
             l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
             l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
-            s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room
+            s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room, s.details
             ORDER BY
             CASE WHEN :sort = 'price_asc'  THEN l.price END ASC,
             CASE WHEN :sort = 'price_desc' THEN l.price END DESC,
@@ -611,6 +611,7 @@ def get_listings(
             square_feet=int(r["square_feet"]) if r["square_feet"] is not None else None,
             living_room=int(r["living_room"]) if r["living_room"] is not None else None,
             images=list(r["images"] or []),
+            details=r["details"],
             distance_km=float(r["distance_km"]) if "distance_km" in r and r["distance_km"] is not None else None,
         ))
 
