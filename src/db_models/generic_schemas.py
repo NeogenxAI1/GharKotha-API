@@ -99,6 +99,7 @@ class ListingSpaceOutput(BaseModel):
     kitchen: int | None = None
     square_feet: int
     living_room: int | None = None
+    details:str | None = None
 
     class Config:
         from_attributes = True
