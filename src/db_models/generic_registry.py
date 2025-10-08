@@ -28,7 +28,7 @@ MODEL_REGISTRY = {
         "model": Listing,
         "update_schema": ListingUpdate,
     },
-    "listingspace":{
+    "listing_space":{
         "model": ListingSpace
     },
     "image":{
@@ -48,7 +48,7 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "plan" : generic_schemas.PlanOutput,
 
     "listings" : generic_schemas.ListingsOutput,
-    "listingspace": generic_schemas.ListingSpaceOutput,
+    "listing_space": generic_schemas.ListingSpaceOutput,
     "image": generic_schemas.ImageOutput,
 
 }
