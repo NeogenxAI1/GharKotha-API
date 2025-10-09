@@ -115,7 +115,7 @@ class ImageOutput(BaseModel):
 class ListingOut(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None
+    # description: Optional[str] = None
     price: float
     status: str
     views: Optional[int] = None

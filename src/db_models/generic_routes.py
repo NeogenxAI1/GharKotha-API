@@ -522,7 +522,7 @@ def get_listings(
     
     sql = text("""
             SELECT
-            l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
+            l.id, l.title, l.price, l.status, l.views, l.created_at,
             l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
             s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room,s.details,
             COALESCE(
@@ -562,7 +562,7 @@ def get_listings(
                 )
             )
             GROUP BY
-            l.id, l.title, l.description, l.price, l.status, l.views, l.created_at,
+            l.id, l.title, l.price, l.status, l.views, l.created_at,
             l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
             s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room, s.details
             ORDER BY
@@ -594,7 +594,7 @@ def get_listings(
         out.append(ListingOut(
             id=r["id"],
             title=r["title"],
-            description=r["description"],
+            # description=r["description"],
             price=float(r["price"]) if r["price"] is not None else 0.0,
             status=r["status"],
             views=r["views"],
