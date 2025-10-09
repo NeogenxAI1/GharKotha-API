@@ -75,7 +75,6 @@ class PlanOutput(BaseModel):
 class ListingsOutput(BaseModel):
     id: int
     title: str
-    description: str
     price: int
     status: str | None = None
     views: int | None = None

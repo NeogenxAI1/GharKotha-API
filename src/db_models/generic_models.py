@@ -141,7 +141,6 @@ class Listing(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     # user_id = Column(UUID(as_uuid=True), ForeignKey("user_profile.user_id", ondelete="CASCADE"), nullable=False)
     title = Column(String(255), nullable=False)
-    description = Column(String, nullable=False)
     price = Column(Integer, nullable=False)
     status = Column(String(50), server_default="active", nullable=True)
     views = Column(Integer, nullable=True)
