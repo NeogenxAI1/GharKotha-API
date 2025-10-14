@@ -66,8 +66,8 @@ class SubscriptionDetails(Base):
     __tablename__ = 'subscription_details'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String(255), nullable=False)
-    phone = Column(String(20), nullable=False)
+    email = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
     qrimage = Column(String, nullable=False)
     
 class UserProfileUpdate(BaseModel):
@@ -181,3 +181,4 @@ class Image(Base):
     image_url = Column(String, nullable=True)
 
     listing = relationship("Listing", back_populates="images") # Relationship back to Listing
+

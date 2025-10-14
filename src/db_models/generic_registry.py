@@ -35,6 +35,7 @@ MODEL_REGISTRY = {
         "model": Image
     },
     
+    
 }  
     
 
@@ -46,7 +47,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "subscription_details" : generic_schemas.SubscriptionDetailsOutput,
     "subscription" : generic_schemas.SubscriptionOutput,
     "plan" : generic_schemas.PlanOutput,
-
     "listings" : generic_schemas.ListingsOutput,
     "listing_space": generic_schemas.ListingSpaceOutput,
     "image": generic_schemas.ImageOutput,
