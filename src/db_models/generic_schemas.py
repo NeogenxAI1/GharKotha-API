@@ -42,7 +42,7 @@ class SubscriptionDetailsOutput(BaseModel):
     id: int
     email: str | None = None
     phone: str | None = None
-    qrimage: str | None = None
+    qr_image: str | None = None
 
     class Config:
         from_attributes = True

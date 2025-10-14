@@ -68,7 +68,7 @@ class SubscriptionDetails(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=False)
-    qrimage = Column(String, nullable=False)
+    qr_image = Column(String, nullable=False)
     
 class UserProfileUpdate(BaseModel):
     first_name: str 
