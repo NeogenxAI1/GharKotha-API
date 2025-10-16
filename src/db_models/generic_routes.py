@@ -191,6 +191,7 @@ def delete_item(
 
     return {"detail": f"Deleted {deleted_count} item(s) from {model_name}."}
 
+
 # insert into table
 
 
@@ -475,7 +476,27 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
     # Respond 200 to acknowledge receipt only needed by stripe to confirm
     return {"status": "success"}
+#------------S Bibhishika----------------
+from utils.imageupload import upload_image_and_get_url
 
+
+@custom_router.post("/public_upload_image")
+async def public_upload_image(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user)
+):
+    suffix= SysPath(file.filename).suffix
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    public_url = upload_image_and_get_url(tmp_path)
+    os.remove(tmp_path)
+
+    return{"image_url": public_url}
+
+#------------E Bibhishika----------------
 @custom_router.get("/version_build")
 def version():
     return {"version : 1.0.2"}
