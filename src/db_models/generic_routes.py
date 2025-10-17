@@ -481,19 +481,30 @@ from utils.imageupload import upload_image_and_get_url
 
 
 @custom_router.post("/public_upload_image")
-async def public_upload_image(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-):
-    suffix= SysPath(file.filename).suffix
-    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-        tmp.write(await file.read())
-        tmp_path = tmp.name
+async def public_upload_image(file: UploadFile = File(...)):
+    try:
+        # Get the file suffix
+        suffix = Path(file.filename).suffix
 
-    public_url = upload_image_and_get_url(tmp_path)
-    os.remove(tmp_path)
+        # Save temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(await file.read())
+            tmp_path = tmp.name
 
-    return{"image_url": public_url}
+        # Upload and get public URL
+        public_url = upload_image_and_get_url(tmp_path)
+
+        # Remove temp file
+        os.remove(tmp_path)
+
+        if not public_url:
+            raise HTTPException(status_code=500, detail="Failed to generate public URL")
+
+        return {"image_url": public_url}
+
+    except Exception as e:
+        print(f"Error in public_upload_image: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 #------------E Bibhishika----------------
 @custom_router.get("/version_build")
