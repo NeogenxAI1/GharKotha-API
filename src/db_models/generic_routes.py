@@ -484,7 +484,6 @@ from utils.imageupload import upload_image_and_get_url
 async def public_upload_image(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_active_user)
 ):
     suffix= SysPath(file.filename).suffix
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
