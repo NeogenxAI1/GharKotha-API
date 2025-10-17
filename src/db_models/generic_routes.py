@@ -15,7 +15,7 @@ from sqlalchemy.exc import IntegrityError
 from psycopg2.errors import UniqueViolation
 from sqlalchemy import text, func
 import stripe
-
+from pathlib import Path
 from utils.emailer import build_invoice_html, send_invoice_email
 from utils.pdftry import generate_invoice_pdf
 from datetime import datetime, timedelta, timezone
