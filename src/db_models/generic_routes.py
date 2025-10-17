@@ -13,7 +13,7 @@ from core.database import SessionLocal
 from src.db_models.generic_registry import MODEL_REGISTRY, RESPONSE_SCHEMAS_REGISTRY
 from sqlalchemy.exc import IntegrityError
 from psycopg2.errors import UniqueViolation
-from sqlalchemy import text
+from sqlalchemy import text, func
 import stripe
 
 from utils.emailer import build_invoice_html, send_invoice_email
@@ -28,7 +28,7 @@ def get_db():
     finally:
         db.close()
 
-from src.db_models.generic_models import AppMinimumVersion, Invoice, Listing, ListingSpace, Subscription
+from src.db_models.generic_models import AppMinimumVersion, Invoice, Listing, ListingSpace, Subscription, Image
 from src.db_models.generic_schemas import AppVersionResponse, ListingOut
 
 @router.get("/app_version", response_model=AppVersionResponse)
@@ -648,3 +648,32 @@ def get_listings(
 
     return out
 
+# -------------------- S Rahul-------------------
+@custom_router.get("/featured_listing")
+def featured_listing(
+    db: Session = Depends(get_db),
+):
+    l=Listing
+    s=ListingSpace
+    i=Image
+
+    results = (
+        db.query(
+            l.id.label("listing_id"),
+            l.title,
+            l.price,
+            s.bedroom,
+            s.bathroom,
+            func.array_agg(i.image_url).label("image_urls"),
+        )
+        .outerjoin(s, l.id== s.listing_id)
+        .outerjoin(i, l.id == i.listing_id)
+        .filter(l.status == "active")
+        .group_by(l.id, l.title, l.price, s.bedroom, s.bathroom, l.created_at)
+        .order_by(l.created_at.desc())
+        .limit(4)
+        .all()
+    )
+    # Convert results to list of dicts
+    response = [dict(row._mapping) for row in results]
+    return JSONResponse(content=jsonable_encoder(response))
