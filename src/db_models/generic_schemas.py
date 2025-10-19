@@ -137,3 +137,14 @@ class ListingOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class CountryOutput(BaseModel):
+    id: int
+    country_name: str
+    country_code: str
+    country_currency: str
+    country_phone_code: str
+    currency_symbol: str | None = None
+
+    class Config:
+        from_attributes = True

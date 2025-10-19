@@ -182,3 +182,13 @@ class Image(Base):
 
     listing = relationship("Listing", back_populates="images") # Relationship back to Listing
 
+class Country(Base):
+    __tablename__ = "country"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    country_name = Column(String(100), nullable=False)
+    country_code = Column(String, nullable=False)
+    country_currency = Column(String, nullable=False)
+    country_phone_code = Column(String(10), nullable=False)
+    currency_symbol = Column(String, nullable=True)
+

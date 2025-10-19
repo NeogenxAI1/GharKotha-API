@@ -34,7 +34,9 @@ MODEL_REGISTRY = {
     "image":{
         "model": Image
     },
-    
+    "country":{
+        "model": Country
+    }
     
 }  
     
@@ -50,5 +52,5 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "listings" : generic_schemas.ListingsOutput,
     "listing_space": generic_schemas.ListingSpaceOutput,
     "image": generic_schemas.ImageOutput,
-
+    "country": generic_schemas.CountryOutput,
 }
