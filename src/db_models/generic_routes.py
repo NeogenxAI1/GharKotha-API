@@ -482,6 +482,7 @@ from utils.imageupload import upload_image_and_get_url
 
 @custom_router.post("/public_upload_image")
 async def public_upload_image(file: UploadFile = File(...)):
+    current_user=Depends(get_current_active_user),
     try:
         # Get the file suffix
         suffix = Path(file.filename).suffix
