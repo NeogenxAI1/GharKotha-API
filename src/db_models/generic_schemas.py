@@ -134,6 +134,10 @@ class ListingOut(BaseModel):
     images: List[Optional[str]] = []
     details: Optional[str] = None
     distance_km: Optional[float] = None
+    # for favorite feature
+    is_favorite: bool = False
+    favorite_id: Optional[int] = None
+    favorite_created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
