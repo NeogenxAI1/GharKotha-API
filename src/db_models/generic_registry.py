@@ -36,6 +36,9 @@ MODEL_REGISTRY = {
     },
     "country":{
         "model": Country
+    },
+    "user_visit_tracking":{
+        "model": UserVisitTracking
     }
     
 }  
@@ -53,4 +56,5 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "listing_space": generic_schemas.ListingSpaceOutput,
     "image": generic_schemas.ImageOutput,
     "country": generic_schemas.CountryOutput,
+    "user_visit_tracking": generic_schemas.UserVisitTrackingOutput
 }

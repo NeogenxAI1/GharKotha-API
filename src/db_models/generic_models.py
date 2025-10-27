@@ -192,3 +192,14 @@ class Country(Base):
     country_phone_code = Column(String(10), nullable=False)
     currency_symbol = Column(String, nullable=True)
 
+
+class UserVisitTracking(Base):
+    __tablename__ = "user_visit_tracking"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid_ip = Column(String, unique=True, nullable=False)
+    ip = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+    logged_counts = Column(Integer, nullable=False)

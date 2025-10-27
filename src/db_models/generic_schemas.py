@@ -148,3 +148,14 @@ class CountryOutput(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserVisitTrackingOutput(BaseModel):
+    uuid_ip: str
+    ip: str | None = None
+    state: str | None = None
+    city: str | None = None
+    created_at: datetime | None = None
+    logged_counts: int 
+
+    class Config:
+        from_attributes = True
