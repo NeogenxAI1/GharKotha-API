@@ -134,6 +134,10 @@ class ListingOut(BaseModel):
     images: List[Optional[str]] = []
     details: Optional[str] = None
     distance_km: Optional[float] = None
+    # for favorite feature
+    is_favorite: bool = False
+    favorite_id: Optional[int] = None
+    favorite_created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -148,3 +152,49 @@ class CountryOutput(BaseModel):
 
     class Config:
         from_attributes = True
+
+# For Nepal Community Web App Outputs
+class UserVisitTrackingOutput(BaseModel):
+    uuid_ip: str
+    ip: str | None = None
+    state: str | None = None
+    city: str | None = None
+    created_at: datetime | None = None
+    logged_counts: int 
+
+    class Config:
+        from_attributes = True
+
+# For Nepal Community Web App Outputs
+class FamilyCountsOutput(BaseModel):
+    city: str
+    state: str
+    family_count: int | None = None
+    is_active: bool | None = None
+
+    class Config:
+        from_attributes = True
+
+# For Nepal Community Web App Outputs
+class CommunityInfoOutput(BaseModel):
+    id: int
+    state: str
+    title: str | None = None
+    description: str | None = None
+    url: str | None = None
+    is_active: bool | None = None
+    created_at: datetime | None = None
+    is_verified: bool | None = None
+    email: str | None = None
+
+    class Config:
+        from_attributes = True
+
+class FavoritesOutput(BaseModel):
+    id: int
+    user_id: UUID
+    listing_id: int
+    created_at: datetime | None = None
+    class Config:
+        from_attributes = True
+

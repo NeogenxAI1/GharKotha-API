@@ -6,7 +6,7 @@
 .venv\Scripts\activate
 
  // run pip to install all libraries
- pip install -r requirments.txt
+ pip install -r requirements.txt
 
  // always change to virtual environment when running app
  .venv\Scripts\activate

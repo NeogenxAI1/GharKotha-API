@@ -36,7 +36,23 @@ MODEL_REGISTRY = {
     },
     "country":{
         "model": Country
-    }
+    },
+    "user_visit_tracking":{
+        "model": UserVisitTracking
+    },
+    "family_counts":{
+        "model": FamilyCounts
+    },
+    "community_info":{
+        "model": CommunityInfo
+    },
+    "views_tracking":{
+        "model": ViewsTracking
+    },
+    "favorites":{
+        "model": Favorites
+    },
+    
     
 }  
     
@@ -53,4 +69,8 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "listing_space": generic_schemas.ListingSpaceOutput,
     "image": generic_schemas.ImageOutput,
     "country": generic_schemas.CountryOutput,
+    "user_visit_tracking": generic_schemas.UserVisitTrackingOutput,
+    "family_counts": generic_schemas.FamilyCountsOutput,
+    "community_info": generic_schemas.CommunityInfoOutput,
+    "favorites": generic_schemas.FavoritesOutput,
 }

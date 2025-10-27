@@ -192,3 +192,54 @@ class Country(Base):
     country_phone_code = Column(String(10), nullable=False)
     currency_symbol = Column(String, nullable=True)
 
+# Nepal Community Web App User Tracking Models
+class UserVisitTracking(Base):
+    __tablename__ = "user_visit_tracking"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid_ip = Column(String, unique=True, nullable=False)
+    ip = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+    logged_counts = Column(Integer, nullable=False)
+
+# Nepal Community Web App familycount Model
+class FamilyCounts(Base):
+    __tablename__ = "family_counts"
+    
+    id = Column(Integer, autoincrement=True)
+    city = Column(String, primary_key=True)
+    state = Column(String, primary_key=True)
+    family_count = Column(Integer, nullable=True)
+    is_active = Column(Boolean, default=True)
+
+# Nepal Community Web App community_info Model
+class CommunityInfo(Base):
+    __tablename__ = "community_info"
+
+    id = Column(Integer, autoincrement=True)
+    state = Column(String,primary_key=True, nullable=False)
+    title = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    url = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    email = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+
+class ViewsTracking(Base):
+    __tablename__ = "views_tracking"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listings_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profile.user_id'),nullable=False)
+    viewed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+class Favorites(Base):
+    __tablename__ = "favorites"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listing_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profile.user_id'),nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
