@@ -230,17 +230,14 @@ def create_item(
         raise HTTPException(
             status_code=400, detail=f"Error creating item: {str(e)}")
 
-
-
-
-### - check if user exist or not  -- this need to be chnaged later 
 from src.db_models.generic_models import UserProfile
-from uuid import UUID
 @router.get("/user_profile/exists")
 def check_user_profile_exists(
-    user_id: UUID,
-    db: Session = Depends(get_db)
+    # user_id: UUID,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user)
 ):
+    user_id= current_user
     exists = db.query(UserProfile).filter(UserProfile.user_id == user_id).first() is not None
     return JSONResponse(content={"isValid": exists})
 
