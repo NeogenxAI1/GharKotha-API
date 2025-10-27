@@ -213,7 +213,21 @@ class FamilyCounts(Base):
     state = Column(String, primary_key=True)
     family_count = Column(Integer, nullable=True)
     is_active = Column(Boolean, default=True)
-    
+
+# Nepal Community Web App community_info Model
+class CommunityInfo(Base):
+    __tablename__ = "community_info"
+
+    id = Column(Integer, autoincrement=True)
+    state = Column(String,primary_key=True, nullable=False)
+    title = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    url = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    email = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+
 class ViewsTracking(Base):
     __tablename__ = "views_tracking"
 

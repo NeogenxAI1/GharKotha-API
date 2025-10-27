@@ -43,6 +43,9 @@ MODEL_REGISTRY = {
     "family_counts":{
         "model": FamilyCounts
     },
+    "community_info":{
+        "model": CommunityInfo
+    },
     "views_tracking":{
         "model": ViewsTracking
     },
@@ -68,5 +71,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "country": generic_schemas.CountryOutput,
     "user_visit_tracking": generic_schemas.UserVisitTrackingOutput,
     "family_counts": generic_schemas.FamilyCountsOutput,
+    "community_info": generic_schemas.CommunityInfoOutput,
     "favorites": generic_schemas.FavoritesOutput,
 }

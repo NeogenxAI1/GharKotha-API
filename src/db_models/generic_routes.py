@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking, FamilyCounts
+from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo
 
 router = APIRouter(prefix="/generic")
 
@@ -955,24 +955,6 @@ def update_user_tracking(
         "logged_counts": user.logged_counts
     }
 
-# @custom_router.get("/familyCounts")
-# def get_family_counts(
-#     state: str = Query(..., description="State to filter family counts"),
-#     token: str = Depends(verify_token),
-#     db: Session = Depends(get_db)
-# ):
-#     print("Fetching family counts for state:", state)
-#     results = db.query(FamilyCounts).filter(FamilyCounts.state == state).all()
-#     print("results:", results)
-#     return JSONResponse(content=[{
-#         "city": r.city,
-#         "state": r.state,
-#         "family_count": r.family_count,
-#         "is_active": r.is_active
-#     } for r in results])
-
-from sqlalchemy import func
-
 @custom_router.get("/familyCounts")
 def get_family_counts(
     state: str = Query(..., description="State to filter family counts"),
@@ -981,7 +963,6 @@ def get_family_counts(
 ):
     # Clean up the incoming state
     state_clean = state.strip().lower()
-    print("Fetching family counts for state:", state_clean)
 
     # Case-insensitive and trim spaces in the database
     results = (
@@ -996,4 +977,32 @@ def get_family_counts(
         "state": r.state,
         "family_count": r.family_count,
         "is_active": r.is_active
+    } for r in results])
+
+@custom_router.get("/communityInfo")
+def get_community_info(
+    state: str = Query(..., description="State to filter community info"),
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    # Clean up the incoming state
+    state_clean = state.strip().lower()
+
+    # Case-insensitive and trim spaces in the database
+    results = (
+        db.query(CommunityInfo)
+        .filter(func.lower(func.trim(CommunityInfo.state)) == state_clean)
+        .all()
+    )
+    print("results:", results)
+
+    return JSONResponse(content=[{
+        "id": r.id,
+        "state": r.state,
+        "title": r.title,
+        "description": r.description,
+        "url": r.url,
+        "is_active": r.is_active,
+        "is_verified": r.is_verified,
+        "email": r.email,
     } for r in results])
