@@ -192,7 +192,7 @@ class Country(Base):
     country_phone_code = Column(String(10), nullable=False)
     currency_symbol = Column(String, nullable=True)
 
-
+# Nepal Community Web App User Tracking Models
 class UserVisitTracking(Base):
     __tablename__ = "user_visit_tracking"
 
@@ -204,6 +204,15 @@ class UserVisitTracking(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     logged_counts = Column(Integer, nullable=False)
 
+# Nepal Community Web App familycount Model
+class FamilyCounts(Base):
+    __tablename__ = "family_counts"
+    
+    id = Column(Integer, autoincrement=True)
+    city = Column(String, primary_key=True)
+    state = Column(String, primary_key=True)
+    family_count = Column(Integer, nullable=True)
+    is_active = Column(Boolean, default=True)
     
 class ViewsTracking(Base):
     __tablename__ = "views_tracking"

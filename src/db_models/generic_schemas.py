@@ -153,6 +153,7 @@ class CountryOutput(BaseModel):
     class Config:
         from_attributes = True
 
+# For Nepal Community Web App Outputs
 class UserVisitTrackingOutput(BaseModel):
     uuid_ip: str
     ip: str | None = None
@@ -160,6 +161,16 @@ class UserVisitTrackingOutput(BaseModel):
     city: str | None = None
     created_at: datetime | None = None
     logged_counts: int 
+
+    class Config:
+        from_attributes = True
+
+# For Nepal Community Web App Outputs
+class FamilyCountsOutput(BaseModel):
+    city: str
+    state: str
+    family_count: int | None = None
+    is_active: bool | None = None
 
     class Config:
         from_attributes = True
@@ -171,3 +182,4 @@ class FavoritesOutput(BaseModel):
     created_at: datetime | None = None
     class Config:
         from_attributes = True
+

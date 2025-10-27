@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking
+from src.db_models.generic_models import UserVisitTracking, FamilyCounts
 
 router = APIRouter(prefix="/generic")
 
@@ -841,9 +841,8 @@ def featured_listing(
     response = [dict(row._mapping) for row in results]
     return JSONResponse(content=jsonable_encoder(response))
 
-# ---------------- User Tracking ----------------
 
-
+# ---------------- User Tracking For Nepal Community Web app----------------
 class UserTrackingCreate(BaseModel):
     uuid_ip: Optional[str] = None
     ip: Optional[str] = None
@@ -854,12 +853,13 @@ class UserTrackingUpdate(BaseModel):
     ip: Optional[str] = None
     state: Optional[str] = None
     city: Optional[str] = None
-
     logged_counts: Optional[int] = None
+
+
 
 # Simple token auth for these endpoints
 def verify_token(token: str = Header(...)):
-    if token != "mysecrettoken":  # replace with env variable in production
+    if token != "mysecrettoken": 
         raise HTTPException(status_code=401, detail="Unauthorized")
     return token
 
@@ -954,3 +954,46 @@ def update_user_tracking(
         "city": user.city,
         "logged_counts": user.logged_counts
     }
+
+# @custom_router.get("/familyCounts")
+# def get_family_counts(
+#     state: str = Query(..., description="State to filter family counts"),
+#     token: str = Depends(verify_token),
+#     db: Session = Depends(get_db)
+# ):
+#     print("Fetching family counts for state:", state)
+#     results = db.query(FamilyCounts).filter(FamilyCounts.state == state).all()
+#     print("results:", results)
+#     return JSONResponse(content=[{
+#         "city": r.city,
+#         "state": r.state,
+#         "family_count": r.family_count,
+#         "is_active": r.is_active
+#     } for r in results])
+
+from sqlalchemy import func
+
+@custom_router.get("/familyCounts")
+def get_family_counts(
+    state: str = Query(..., description="State to filter family counts"),
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    # Clean up the incoming state
+    state_clean = state.strip().lower()
+    print("Fetching family counts for state:", state_clean)
+
+    # Case-insensitive and trim spaces in the database
+    results = (
+        db.query(FamilyCounts)
+        .filter(func.lower(func.trim(FamilyCounts.state)) == state_clean)
+        .all()
+    )
+    print("results:", results)
+
+    return JSONResponse(content=[{
+        "city": r.city,
+        "state": r.state,
+        "family_count": r.family_count,
+        "is_active": r.is_active
+    } for r in results])

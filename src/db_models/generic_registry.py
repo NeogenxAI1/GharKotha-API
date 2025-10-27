@@ -40,6 +40,9 @@ MODEL_REGISTRY = {
     "user_visit_tracking":{
         "model": UserVisitTracking
     },
+    "family_counts":{
+        "model": FamilyCounts
+    },
     "views_tracking":{
         "model": ViewsTracking
     },
@@ -64,5 +67,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "image": generic_schemas.ImageOutput,
     "country": generic_schemas.CountryOutput,
     "user_visit_tracking": generic_schemas.UserVisitTrackingOutput,
+    "family_counts": generic_schemas.FamilyCountsOutput,
     "favorites": generic_schemas.FavoritesOutput,
 }
