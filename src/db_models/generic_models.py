@@ -203,3 +203,20 @@ class UserVisitTracking(Base):
     city = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     logged_counts = Column(Integer, nullable=False)
+
+    
+class ViewsTracking(Base):
+    __tablename__ = "views_tracking"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listings_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profile.user_id'),nullable=False)
+    viewed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+class Favorites(Base):
+    __tablename__ = "favorites"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listing_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profile.user_id'),nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

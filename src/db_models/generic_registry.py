@@ -39,7 +39,14 @@ MODEL_REGISTRY = {
     },
     "user_visit_tracking":{
         "model": UserVisitTracking
-    }
+    },
+    "views_tracking":{
+        "model": ViewsTracking
+    },
+    "favorites":{
+        "model": Favorites
+    },
+    
     
 }  
     
@@ -56,5 +63,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "listing_space": generic_schemas.ListingSpaceOutput,
     "image": generic_schemas.ImageOutput,
     "country": generic_schemas.CountryOutput,
-    "user_visit_tracking": generic_schemas.UserVisitTrackingOutput
+    "user_visit_tracking": generic_schemas.UserVisitTrackingOutput,
+    "favorites": generic_schemas.FavoritesOutput,
 }

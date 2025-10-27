@@ -159,3 +159,11 @@ class UserVisitTrackingOutput(BaseModel):
 
     class Config:
         from_attributes = True
+    
+class FavoritesOutput(BaseModel):
+    id: int
+    user_id: UUID
+    listing_id: int
+    created_at: datetime | None = None
+    class Config:
+        from_attributes = True
