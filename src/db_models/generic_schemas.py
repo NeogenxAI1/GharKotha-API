@@ -190,6 +190,19 @@ class CommunityInfoOutput(BaseModel):
     class Config:
         from_attributes = True
 
+# For Nepal Community Web App Outputs
+class FamilyNumberSubmittedOutput(BaseModel):
+    id: int
+    uuid_ip: str
+    state: str | None = None
+    city: str | None = None
+    is_verified: bool | None = None
+    family_number: int 
+    created_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
 class FavoritesOutput(BaseModel):
     id: int
     user_id: UUID

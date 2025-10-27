@@ -228,6 +228,19 @@ class CommunityInfo(Base):
     email = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
+# Nepal Community Web App family_number_submitted Model
+class FamilyNumberSubmitted(Base):
+    __tablename__ = "family_number_submitted"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)  
+    uuid_ip = Column(String, unique=True, nullable=False)       
+    state = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    family_number = Column(Integer, nullable=False)
+    is_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+
+
 class ViewsTracking(Base):
     __tablename__ = "views_tracking"
 

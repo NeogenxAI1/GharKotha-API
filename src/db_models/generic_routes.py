@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo
+from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted
 
 router = APIRouter(prefix="/generic")
 
@@ -855,6 +855,13 @@ class UserTrackingUpdate(BaseModel):
     city: Optional[str] = None
     logged_counts: Optional[int] = None
 
+class FamilyNumberSubmittedCreate(BaseModel):
+    uuid_ip: str
+    family_number: int
+    state: str | None = None
+    city: str | None = None
+    is_verified: bool = False
+
 
 
 # Simple token auth for these endpoints
@@ -1006,3 +1013,49 @@ def get_community_info(
         "is_verified": r.is_verified,
         "email": r.email,
     } for r in results])
+
+@custom_router.post("/familyNumberSubmitted")
+def family_number_submitted(
+    data: FamilyNumberSubmittedCreate,
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    try:
+        # Check if uuid_ip already exists
+        existing = db.query(FamilyNumberSubmitted).filter_by(uuid_ip=data.uuid_ip).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="UUID already exists")
+
+        # Create and save record
+        new_entry = FamilyNumberSubmitted(
+            uuid_ip=data.uuid_ip,
+            state=data.state,
+            city=data.city,
+            family_number=data.family_number,
+            is_verified=data.is_verified
+        )
+
+        db.add(new_entry)
+        db.commit()
+        db.refresh(new_entry)
+
+        return JSONResponse(
+            status_code=201,
+            content={
+                "message": "Family number submitted successfully",
+                "data": {
+                    "uuid_ip": new_entry.uuid_ip,
+                    "state": new_entry.state,
+                    "city": new_entry.city,
+                    "family_number": new_entry.family_number,
+                    "is_verified": new_entry.is_verified,
+                    "created_at": str(new_entry.created_at)
+                }
+            }
+        )
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
