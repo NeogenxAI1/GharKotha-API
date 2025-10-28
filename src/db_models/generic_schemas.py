@@ -161,6 +161,8 @@ class UserVisitTrackingOutput(BaseModel):
     city: str | None = None
     created_at: datetime | None = None
     logged_counts: int 
+    lat: float | None = None
+    lon: float | None = None
 
     class Config:
         from_attributes = True

@@ -203,6 +203,8 @@ class UserVisitTracking(Base):
     city = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     logged_counts = Column(Integer, nullable=False)
+    lat = Column(Numeric, nullable = True)
+    lon = Column(Numeric, nullable = True)
 
 # Nepal Community Web App familycount Model
 class FamilyCounts(Base):

@@ -845,6 +845,8 @@ class UserTrackingCreate(BaseModel):
     ip: Optional[str] = None
     state: Optional[str] = None
     city: Optional[str] = None
+    lat: Optional[float] = None
+    lon: Optional[float] = None
 
 class UserTrackingUpdate(BaseModel):
     ip: Optional[str] = None
@@ -878,27 +880,74 @@ def get_user_tracking(
     if uuid_ip:
         query = query.filter(UserVisitTracking.uuid_ip == uuid_ip)
     results = query.all()
-    return JSONResponse(content=[{
+    
+    data = [{
         "id": r.id,
         "uuid_ip": r.uuid_ip,
         "ip": r.ip,
         "state": r.state,
         "city": r.city,
-        "logged_counts": r.logged_counts
-    } for r in results])
+        "logged_counts": r.logged_counts,
+        "lat": r.lat,
+        "lon": r.lon
+    } for r in results]
+    
+    return JSONResponse(content=jsonable_encoder(data))
+
 
 # POST: create new user tracking (UUID comes from frontend)
+# @custom_router.post("/userTracking")
+# def create_user_tracking(
+#     data: UserTrackingCreate,
+#     token: str = Depends(verify_token),
+#     db: Session = Depends(get_db)
+# ):
+#     # Ensure UUID is provided by frontend
+#     if not data.uuid_ip:
+#         raise HTTPException(status_code=400, detail="uuid_ip is required from frontend")
+
+#     # Check if the UUID already exists
+#     existing = db.query(UserVisitTracking).filter(UserVisitTracking.uuid_ip == data.uuid_ip).first()
+#     if existing:
+#         raise HTTPException(status_code=400, detail="UserVisitTracking with this uuid_ip already exists")
+
+#     try:
+#         new_entry = UserVisitTracking(
+#             uuid_ip=data.uuid_ip,
+#             ip=data.ip,
+#             state=data.state,
+#             city=data.city,
+#             logged_counts=1,
+            
+#         )
+#         db.add(new_entry)
+#         db.commit()
+#         db.refresh(new_entry)
+
+#         return {
+#             "id": new_entry.id,
+#             "uuid_ip": new_entry.uuid_ip,
+#             "ip": new_entry.ip,
+#             "state": new_entry.state,
+#             "city": new_entry.city,
+#             "logged_counts": new_entry.logged_counts
+#         }
+#     except IntegrityError:
+#         db.rollback()
+#         raise HTTPException(status_code=400, detail="Integrity error")
+#     except Exception as e:
+#         db.rollback()
+#         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
 @custom_router.post("/userTracking")
 def create_user_tracking(
     data: UserTrackingCreate,
     token: str = Depends(verify_token),
     db: Session = Depends(get_db)
 ):
-    # Ensure UUID is provided by frontend
     if not data.uuid_ip:
         raise HTTPException(status_code=400, detail="uuid_ip is required from frontend")
 
-    # Check if the UUID already exists
     existing = db.query(UserVisitTracking).filter(UserVisitTracking.uuid_ip == data.uuid_ip).first()
     if existing:
         raise HTTPException(status_code=400, detail="UserVisitTracking with this uuid_ip already exists")
@@ -910,29 +959,59 @@ def create_user_tracking(
             state=data.state,
             city=data.city,
             logged_counts=1,
-            
+            lat=data.lat,
+            lon=data.lon
         )
         db.add(new_entry)
         db.commit()
         db.refresh(new_entry)
 
-        return {
+        return jsonable_encoder({
             "id": new_entry.id,
             "uuid_ip": new_entry.uuid_ip,
             "ip": new_entry.ip,
             "state": new_entry.state,
             "city": new_entry.city,
-            "logged_counts": new_entry.logged_counts
-        }
+            "logged_counts": new_entry.logged_counts,
+            "lat": new_entry.lat,
+            "lon": new_entry.lon
+        })
+
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=400, detail="Integrity error")
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
-
+    
 
 # PATCH: update fields for a userTracking by uuid_ip
+# @custom_router.patch("/userTracking/{uuid_ip}")
+# def update_user_tracking(
+#     uuid_ip: str,
+#     data: UserTrackingUpdate,
+#     token: str = Depends(verify_token),
+#     db: Session = Depends(get_db)
+# ):
+#     user = db.query(UserVisitTracking).filter(UserVisitTracking.uuid_ip == uuid_ip).first()
+#     if not user:
+#         raise HTTPException(status_code=404, detail="UserVisitTracking not found")
+
+#     update_data = data.dict(exclude_unset=True)
+#     for key, value in update_data.items():
+#         setattr(user, key, value)
+
+#     db.commit()
+#     db.refresh(user)
+#     return {
+#         "id": user.id,
+#         "uuid_ip": user.uuid_ip,
+#         "ip": user.ip,
+#         "state": user.state,
+#         "city": user.city,
+#         "logged_counts": user.logged_counts
+#     }
+
 @custom_router.patch("/userTracking/{uuid_ip}")
 def update_user_tracking(
     uuid_ip: str,
@@ -950,14 +1029,17 @@ def update_user_tracking(
 
     db.commit()
     db.refresh(user)
-    return {
+
+    return jsonable_encoder({
         "id": user.id,
         "uuid_ip": user.uuid_ip,
         "ip": user.ip,
         "state": user.state,
         "city": user.city,
-        "logged_counts": user.logged_counts
-    }
+        "logged_counts": user.logged_counts,
+        "lat": user.lat,
+        "lon": user.lon
+    })
 
 @custom_router.get("/familyCounts")
 def get_family_counts(
