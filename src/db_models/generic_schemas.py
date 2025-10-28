@@ -161,6 +161,8 @@ class UserVisitTrackingOutput(BaseModel):
     city: str | None = None
     created_at: datetime | None = None
     logged_counts: int 
+    lat: float | None = None
+    lon: float | None = None
 
     class Config:
         from_attributes = True
@@ -186,6 +188,19 @@ class CommunityInfoOutput(BaseModel):
     created_at: datetime | None = None
     is_verified: bool | None = None
     email: str | None = None
+
+    class Config:
+        from_attributes = True
+
+# For Nepal Community Web App Outputs
+class FamilyNumberSubmittedOutput(BaseModel):
+    id: int
+    uuid_ip: str
+    state: str | None = None
+    city: str | None = None
+    is_verified: bool | None = None
+    family_number: int 
+    created_at: datetime | None = None
 
     class Config:
         from_attributes = True
