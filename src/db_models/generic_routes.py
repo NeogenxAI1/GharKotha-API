@@ -610,6 +610,7 @@ def get_listings(
     db: Session = Depends(get_db),
     # ⬇️ Optional auth: implement `get_optional_user` separately; it should return user_id or None.
     user_id: Optional[str] = Depends(get_optional_user),
+    location_name: Optional[str] = Query(None, description="Location name search")
 ):
     sql = text("""
         SELECT
@@ -648,8 +649,10 @@ def get_listings(
           AND (:min_sqft  IS NULL OR s.square_feet >= :min_sqft)
           AND (:max_sqft  IS NULL OR s.square_feet <= :max_sqft)
           AND (:bedrooms  IS NULL OR s.bedroom     >= :bedrooms)
-          AND (
-            :lat IS NULL OR :lng IS NULL
+            AND(
+               (:location_name IS NULL OR l.location ILIKE '%' || :location_name|| '%')
+            AND (
+                :lat IS NULL OR :lng IS NULL
             OR (
               l.latitude IS NOT NULL AND l.longitude IS NOT NULL
               AND 2 * 6371 * ASIN(
@@ -661,6 +664,7 @@ def get_listings(
                   ) <= :radius_km
             )
           )
+        )
         GROUP BY
           l.id, l.title, l.price, l.status, l.views, l.created_at,
           l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
@@ -686,6 +690,7 @@ def get_listings(
         "offset": (page - 1) * page_size,
         "limit": page_size,
         "user_id": user_id,  # None for public calls; actual UUID/str for logged-in users
+        "location_name": location_name,
     }
 
     rows = db.execute(sql, params).mappings().all()
