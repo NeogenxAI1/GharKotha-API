@@ -763,7 +763,12 @@ def get_favourites(
             ARRAY_AGG(DISTINCT i.image_url)
               FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
             ARRAY[]::varchar[]
-          ) AS images
+          ) AS images,
+
+          -- Favourite metadata for this user
+          MAX(f.id)          AS favorite_id,
+          TRUE               AS is_favorite,
+          MAX(f.created_at)  AS favorite_created_at
 
         FROM favorites f
         JOIN listings l
@@ -777,6 +782,7 @@ def get_favourites(
         GROUP BY
           l.id, l.title, l.price, l.status, l.views, l.created_at,
           l.contact_name, l.contact_number, l.location, l.latitude, l.longitude
+        ORDER BY MAX(f.created_at) DESC, l.id DESC
         OFFSET :offset LIMIT :limit;
     """)
 
@@ -811,9 +817,15 @@ def get_favourites(
             images=list(r["images"] or []),
             details=r["details"],
             distance_km=None,  # not applicable for favourites
+
+            is_favorite=bool(r.get("is_favorite", True)),
+            favorite_id=int(r["favorite_id"]) if r.get("favorite_id") is not None else None,
+            favorite_created_at=r.get("favorite_created_at"),
         ))
 
-    return out# -------------------- S Rahul-------------------
+    return out
+
+# -------------------- S Rahul-------------------
 @custom_router.get("/featured_listing")
 def featured_listing(
     db: Session = Depends(get_db),
