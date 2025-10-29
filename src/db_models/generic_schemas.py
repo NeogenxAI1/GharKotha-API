@@ -181,13 +181,16 @@ class FamilyCountsOutput(BaseModel):
 class CommunityInfoOutput(BaseModel):
     id: int
     state: str
-    title: str | None = None
-    description: str | None = None
+    title: str 
+    description: str 
     url: str | None = None
     is_active: bool | None = None
     created_at: datetime | None = None
     is_verified: bool | None = None
-    email: str | None = None
+    email: str 
+    post_type_id: int | None = None
+    is_email_sent: bool | None = None
+    is_promote: bool | None = None
 
     class Config:
         from_attributes = True

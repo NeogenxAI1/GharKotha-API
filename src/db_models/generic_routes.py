@@ -878,7 +878,18 @@ class FamilyNumberSubmittedCreate(BaseModel):
     city: str | None = None
     is_verified: bool = False
 
-
+class CommunityInfoCreate(BaseModel):
+    state: str
+    title: str 
+    description: str 
+    url: str | None = None
+    is_active: bool = True 
+    is_verified: bool = False
+    email: str 
+    created_at: datetime | None = None
+    post_type_id: int | None = None
+    is_email_sent: bool = False
+    is_promote: bool = False
 
 # Simple token auth for these endpoints
 def verify_token(token: str = Header(...)):
@@ -1039,8 +1050,61 @@ def get_community_info(
         "is_active": r.is_active,
         "is_verified": r.is_verified,
         "email": r.email,
+        "created_at": r.created_at,
+        "post_type_id": r.post_type_id,
+        "is_email_sent": r.is_email_sent,
+        "is_promote": r.is_promote
     } for r in results])
 
+
+# POST: create new community Info 
+@custom_router.post("/communityInfo")
+def create_community_info(
+    data: CommunityInfoCreate,
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    if not data.state:
+        raise HTTPException(status_code=400, detail="State is required from frontend")
+    if not data.title:
+        raise HTTPException(status_code=400, detail="Title is required from frontend")
+
+    # existing = db.query(CommunityInfo).filter(CommunityInfo.uuid_ip == data.uuid_ip).first()
+    # if existing:
+    #     raise HTTPException(status_code=400, detail="CommunityInfo with this uuid_ip already exists")
+
+    try:
+        new_entry = CommunityInfo(
+            state=data.state,
+            title=data.title,
+            description=data.description,
+            url=data.url,
+            email=data.email,
+            created_at=data.created_at,
+            post_type_id=data.post_type_id,
+
+        )
+        db.add(new_entry)
+        db.commit()
+        db.refresh(new_entry)
+
+        return jsonable_encoder({
+            "id": new_entry.id,
+            "state": new_entry.state,
+            "title": new_entry.title,
+            "description": new_entry.description,
+            "url": new_entry.url,
+            "is_active": new_entry.is_active,
+            "is_verified": new_entry.is_verified,
+            "email": new_entry.email,
+        })
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Integrity error")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @custom_router.get("/city_states")
 def get_city_states(

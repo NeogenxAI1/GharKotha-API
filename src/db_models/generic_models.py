@@ -220,15 +220,18 @@ class FamilyCounts(Base):
 class CommunityInfo(Base):
     __tablename__ = "community_info"
 
-    id = Column(Integer, autoincrement=True)
-    state = Column(String,primary_key=True, nullable=False)
-    title = Column(String, nullable=True)
-    description = Column(String, nullable=True)
+    id = Column(Integer,primary_key=True, autoincrement=True)
+    state = Column(String,nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=False)
     url = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
-    email = Column(String, nullable=True)
+    email = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+    post_type_id = Column(Integer, nullable=True)
+    is_email_sent = Column(Boolean, default=False)
+    is_promote = Column(Boolean, default=False)
 
 # Nepal Community Web App family_number_submitted Model
 class FamilyNumberSubmitted(Base):
