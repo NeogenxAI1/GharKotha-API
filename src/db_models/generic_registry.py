@@ -49,6 +49,9 @@ MODEL_REGISTRY = {
     "family_number_submitted":{
         "model": FamilyNumberSubmitted
     },
+    "city_state":{
+        "model": CityState
+    },
     "views_tracking":{
         "model": ViewsTracking
     },
@@ -76,5 +79,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "family_counts": generic_schemas.FamilyCountsOutput,
     "community_info": generic_schemas.CommunityInfoOutput,
     "family_number_submitted": generic_schemas.FamilyNumberSubmittedOutput,
+    "city_state": generic_schemas.CityStateOutput,
     "favorites": generic_schemas.FavoritesOutput,
 }

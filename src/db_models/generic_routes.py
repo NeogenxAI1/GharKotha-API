@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted
+from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted, CityState
 
 router = APIRouter(prefix="/generic")
 
@@ -895,50 +895,7 @@ def get_user_tracking(
     return JSONResponse(content=jsonable_encoder(data))
 
 
-# POST: create new user tracking (UUID comes from frontend)
-# @custom_router.post("/userTracking")
-# def create_user_tracking(
-#     data: UserTrackingCreate,
-#     token: str = Depends(verify_token),
-#     db: Session = Depends(get_db)
-# ):
-#     # Ensure UUID is provided by frontend
-#     if not data.uuid_ip:
-#         raise HTTPException(status_code=400, detail="uuid_ip is required from frontend")
-
-#     # Check if the UUID already exists
-#     existing = db.query(UserVisitTracking).filter(UserVisitTracking.uuid_ip == data.uuid_ip).first()
-#     if existing:
-#         raise HTTPException(status_code=400, detail="UserVisitTracking with this uuid_ip already exists")
-
-#     try:
-#         new_entry = UserVisitTracking(
-#             uuid_ip=data.uuid_ip,
-#             ip=data.ip,
-#             state=data.state,
-#             city=data.city,
-#             logged_counts=1,
-            
-#         )
-#         db.add(new_entry)
-#         db.commit()
-#         db.refresh(new_entry)
-
-#         return {
-#             "id": new_entry.id,
-#             "uuid_ip": new_entry.uuid_ip,
-#             "ip": new_entry.ip,
-#             "state": new_entry.state,
-#             "city": new_entry.city,
-#             "logged_counts": new_entry.logged_counts
-#         }
-#     except IntegrityError:
-#         db.rollback()
-#         raise HTTPException(status_code=400, detail="Integrity error")
-#     except Exception as e:
-#         db.rollback()
-#         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
-
+# POST: create new user tracking
 @custom_router.post("/userTracking")
 def create_user_tracking(
     data: UserTrackingCreate,
@@ -985,33 +942,7 @@ def create_user_tracking(
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
     
 
-# PATCH: update fields for a userTracking by uuid_ip
-# @custom_router.patch("/userTracking/{uuid_ip}")
-# def update_user_tracking(
-#     uuid_ip: str,
-#     data: UserTrackingUpdate,
-#     token: str = Depends(verify_token),
-#     db: Session = Depends(get_db)
-# ):
-#     user = db.query(UserVisitTracking).filter(UserVisitTracking.uuid_ip == uuid_ip).first()
-#     if not user:
-#         raise HTTPException(status_code=404, detail="UserVisitTracking not found")
-
-#     update_data = data.dict(exclude_unset=True)
-#     for key, value in update_data.items():
-#         setattr(user, key, value)
-
-#     db.commit()
-#     db.refresh(user)
-#     return {
-#         "id": user.id,
-#         "uuid_ip": user.uuid_ip,
-#         "ip": user.ip,
-#         "state": user.state,
-#         "city": user.city,
-#         "logged_counts": user.logged_counts
-#     }
-
+# PATCH: update user tracking by uuid_ip
 @custom_router.patch("/userTracking/{uuid_ip}")
 def update_user_tracking(
     uuid_ip: str,
@@ -1092,6 +1023,51 @@ def get_community_info(
         "is_verified": r.is_verified,
         "email": r.email,
     } for r in results])
+
+
+@custom_router.get("/city_states")
+def get_city_states(
+    city: str = Query(..., description="City name or part of it for search"),
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    try:
+        city_clean = city.strip().lower()
+
+        if len(city_clean) < 2:
+            raise HTTPException(status_code=400, detail="Please enter at least 2 characters to search.")
+
+        results = (
+            db.query(CityState)
+            .filter(CityState.city.ilike(f"%{city_clean}%"))
+            .limit(20)
+            .all()
+        )
+
+        if not results:
+            return JSONResponse(content=[], status_code=200)
+
+        return JSONResponse(
+            content=[
+                {
+                    "id": r.id,
+                    "city": r.city,
+                    "state_abbr": r.state_abbr,
+                    "state_name": r.state_name,
+                    "county_fips": r.county_fips,
+                    "lat": r.lat,
+                    "lon": r.lon,
+                    "county_name": r.county_name,
+                }
+                for r in results
+            ],
+            status_code=200,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @custom_router.post("/familyNumberSubmitted")
 def family_number_submitted(

@@ -242,6 +242,18 @@ class FamilyNumberSubmitted(Base):
     is_verified = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
+# Nepal Community Web App city_state Model
+class CityState(Base):
+    __tablename__ = "city_state"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    city = Column(String, nullable=False)
+    state_abbr = Column(String, nullable=False)
+    state_name = Column(String, nullable=False)
+    county_fips = Column(String, nullable=True)
+    lat = Column(String, nullable = True)
+    lon = Column(String, nullable = True)
+    county_name = Column(String, nullable=True)
 
 class ViewsTracking(Base):
     __tablename__ = "views_tracking"

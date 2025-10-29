@@ -205,6 +205,20 @@ class FamilyNumberSubmittedOutput(BaseModel):
     class Config:
         from_attributes = True
 
+# For Nepal Community Web App Outputs
+class CityStateOutput(BaseModel):
+    id: int
+    city: str
+    state_abbr: str
+    state_name: str
+    county_fips: str | None = None
+    lat: str | None = None
+    lon: str | None = None
+    county_name: str | None = None
+
+    class Config:
+        from_attributes = True
+
 class FavoritesOutput(BaseModel):
     id: int
     user_id: UUID
