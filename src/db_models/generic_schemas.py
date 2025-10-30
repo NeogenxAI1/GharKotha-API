@@ -236,6 +236,16 @@ class UserDeviceInfoOutput(BaseModel):
     class Config:
         from_attributes = True
 
+# For Nepal Community Web App Outputs
+class PostTypeOutput(BaseModel):
+    id: int
+    post_type: str
+    is_active: bool | None = None
+
+    class Config:
+        from_attributes = True
+
+
 class FavoritesOutput(BaseModel):
     id: int
     user_id: UUID

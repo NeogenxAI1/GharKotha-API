@@ -55,6 +55,9 @@ MODEL_REGISTRY = {
     "user_device_info":{
         "model": UserDeviceInfo
     },
+    "post_type":{
+        "model": PostType
+    },
     "views_tracking":{
         "model": ViewsTracking
     },
@@ -84,5 +87,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "family_number_submitted": generic_schemas.FamilyNumberSubmittedOutput,
     "city_state": generic_schemas.CityStateOutput,
     "user_device_info": generic_schemas.UserDeviceInfoOutput,
+    "post_type": generic_schemas.PostTypeOutput,
     "favorites": generic_schemas.FavoritesOutput,
 }

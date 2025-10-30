@@ -271,6 +271,14 @@ class UserDeviceInfo(Base):
     cpu = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
+# Nepal Community Web App post_type Model
+class PostType(Base):
+    __tablename__ = "post_type"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    post_type = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+
 class ViewsTracking(Base):
     __tablename__ = "views_tracking"
 

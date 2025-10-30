@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted, CityState, UserDeviceInfo
+from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, PostType, FamilyNumberSubmitted, CityState, UserDeviceInfo
 from functools import lru_cache
 
 router = APIRouter(prefix="/generic")
@@ -35,7 +35,7 @@ def get_db():
         db.close()
 
 from src.db_models.generic_models import AppMinimumVersion, Invoice, Listing, ListingSpace, Subscription, Image
-from src.db_models.generic_schemas import AppVersionResponse, CityStateOutput, ListingOut, CommunityInfoOutput, UserDeviceInfoOutput
+from src.db_models.generic_schemas import AppVersionResponse, CityStateOutput, ListingOut,PostTypeOutput, CommunityInfoOutput, UserDeviceInfoOutput
 
 @router.get("/app_version", response_model=AppVersionResponse)
 def get_app_version(db: Session = Depends(get_db)):
@@ -1033,6 +1033,16 @@ def get_family_counts(
         "family_count": r.family_count,
         "is_active": r.is_active
     } for r in results])
+
+@custom_router.get("/postTypes", response_model=List[PostTypeOutput])
+def get_post_types(
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    results = db.query(PostType).all()
+
+    return results
+
 
 @custom_router.get("/communityInfo")
 def get_community_info(
