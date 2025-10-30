@@ -230,3 +230,8 @@ class FavoritesOutput(BaseModel):
     class Config:
         from_attributes = True
 
+class CityStateOutput(BaseModel):
+    id: int
+    city_state: str  # Combined city + state string
+    city:str
+    state_abbr:str

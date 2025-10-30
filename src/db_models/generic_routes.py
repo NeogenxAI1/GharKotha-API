@@ -23,6 +23,7 @@ from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted, CityState
+from functools import lru_cache
 
 router = APIRouter(prefix="/generic")
 
@@ -34,7 +35,7 @@ def get_db():
         db.close()
 
 from src.db_models.generic_models import AppMinimumVersion, Invoice, Listing, ListingSpace, Subscription, Image
-from src.db_models.generic_schemas import AppVersionResponse, ListingOut
+from src.db_models.generic_schemas import AppVersionResponse, CityStateOutput, ListingOut
 
 @router.get("/app_version", response_model=AppVersionResponse)
 def get_app_version(db: Session = Depends(get_db)):
@@ -1106,44 +1107,45 @@ def create_community_info(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
-@custom_router.get("/city_states")
+# ---------- Global Cache ----------
+city_state_cache: list[dict] | None = None  # starts empty
+
+def load_city_states(
+    db: Session = Depends(get_db)
+)-> list[dict]:
+    print("---loading from db")
+    try:
+        results = (
+            db.query(CityState).with_entities(CityState.id, CityState.city, CityState.state_abbr)
+            .all()
+        )
+        return [{"id": r.id, "city": r.city, "state_abbr": r.state_abbr,"city_state": f"{r.city}, {r.state_abbr}"} for r in results]
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
+
+@custom_router.post("/refresh-cache")
+def refresh_city_cache(token: str = Depends(verify_token),db: Session = Depends(get_db)):
+    load_city_states(db)
+    return {"message": "City cache refreshed"}
+
+@custom_router.get("/city_states",response_model=List[CityStateOutput])
 def get_city_states(
     city: str = Query(..., description="City name or part of it for search"),
-    token: str = Depends(verify_token),
+    # token: str = Depends(verify_token),
     db: Session = Depends(get_db)
 ):
     try:
-        city_clean = city.strip().lower()
-
-        if len(city_clean) < 2:
-            raise HTTPException(status_code=400, detail="Please enter at least 2 characters to search.")
-
-        results = (
-            db.query(CityState)
-            .filter(CityState.city.ilike(f"%{city_clean}%"))
-            .limit(20)
-            .all()
-        )
-
-        if not results:
-            return JSONResponse(content=[], status_code=200)
-
-        return JSONResponse(
-            content=[
-                {
-                    "id": r.id,
-                    "city": r.city,
-                    "state_abbr": r.state_abbr,
-                    "state_name": r.state_name,
-                    "county_fips": r.county_fips,
-                    "lat": r.lat,
-                    "lon": r.lon,
-                    "county_name": r.county_name,
-                }
-                for r in results
-            ],
-            status_code=200,
-        )
+        global city_state_cache
+        if city_state_cache is None:
+            city_state_cache = load_city_states(db)
+        q_lower = city.lower()
+        results = [
+            city for city in city_state_cache if q_lower in city["city_state"].lower()
+        ][:5]
+        return results
 
     except HTTPException:
         raise
