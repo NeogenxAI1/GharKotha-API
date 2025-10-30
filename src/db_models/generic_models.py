@@ -230,7 +230,7 @@ class CommunityInfo(Base):
     email = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
     post_type_id = Column(Integer, nullable=True)
-    is_email_sent = Column(Boolean, default=False)
+    is_email_sent = Column(Boolean, default=False) 
     is_promote = Column(Boolean, default=False)
 
 # Nepal Community Web App family_number_submitted Model
@@ -257,6 +257,19 @@ class CityState(Base):
     lat = Column(String, nullable = True)
     lon = Column(String, nullable = True)
     county_name = Column(String, nullable=True)
+
+# Nepal Community Web App user_device_info Model
+class UserDeviceInfo(Base):
+    __tablename__ = "user_device_info"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ip_uuid = Column(String, unique=True, nullable=False)
+    device = Column(String, nullable=True)
+    browser = Column(String, nullable=True)
+    os = Column(String, nullable=True)
+    engine = Column(String, nullable=True)
+    cpu = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
 class ViewsTracking(Base):
     __tablename__ = "views_tracking"

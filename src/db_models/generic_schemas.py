@@ -222,6 +222,20 @@ class CityStateOutput(BaseModel):
     class Config:
         from_attributes = True
 
+# For Nepal Community Web App Outputs
+class UserDeviceInfoOutput(BaseModel):
+    id: int
+    ip_uuid: str
+    device: str | None = None
+    os: str | None = None
+    browser: str | None = None
+    engine: str | None = None
+    cpu: str | None = None
+    created_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
 class FavoritesOutput(BaseModel):
     id: int
     user_id: UUID

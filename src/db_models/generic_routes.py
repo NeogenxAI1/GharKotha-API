@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted, CityState
+from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, FamilyNumberSubmitted, CityState, UserDeviceInfo
 from functools import lru_cache
 
 router = APIRouter(prefix="/generic")
@@ -35,7 +35,7 @@ def get_db():
         db.close()
 
 from src.db_models.generic_models import AppMinimumVersion, Invoice, Listing, ListingSpace, Subscription, Image
-from src.db_models.generic_schemas import AppVersionResponse, CityStateOutput, ListingOut
+from src.db_models.generic_schemas import AppVersionResponse, CityStateOutput, ListingOut, CommunityInfoOutput, UserDeviceInfoOutput
 
 @router.get("/app_version", response_model=AppVersionResponse)
 def get_app_version(db: Session = Depends(get_db)):
@@ -892,6 +892,15 @@ class CommunityInfoCreate(BaseModel):
     is_email_sent: bool = False
     is_promote: bool = False
 
+class UserDeviceInfoCreate(BaseModel):
+    ip_uuid: str
+    device: str | None = None
+    os: str | None = None
+    browser: str | None = None
+    engine: str | None = None
+    cpu: str | None = None
+    app_version: str | None = None
+
 # Simple token auth for these endpoints
 def verify_token(token: str = Header(...)):
     if token != "mysecrettoken": 
@@ -1057,22 +1066,49 @@ def get_community_info(
         "is_promote": r.is_promote
     } for r in results])
 
+# POST: create new user_device info 
+@custom_router.post("/userDeviceInfo", response_model = UserDeviceInfoOutput)
+def create_user_device_info(
+    data: UserDeviceInfoCreate,
+    token: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    if not data.ip_uuid:
+        raise HTTPException(status_code=400, detail="ip_uuid is required from frontend")
+
+    try:
+        new_entry = UserDeviceInfo(
+            ip_uuid=data.ip_uuid,
+            device=data.device,
+            os=data.os,
+            browser=data.browser,
+            engine=data.engine,
+            cpu=data.cpu,
+            
+        )
+        db.add(new_entry)
+        db.commit()
+        db.refresh(new_entry)
+        
+        return new_entry
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Integrity error")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 # POST: create new community Info 
-@custom_router.post("/communityInfo")
+@custom_router.post("/communityInfo", response_model=CommunityInfoOutput )
 def create_community_info(
     data: CommunityInfoCreate,
-    token: str = Depends(verify_token),
     db: Session = Depends(get_db)
 ):
     if not data.state:
         raise HTTPException(status_code=400, detail="State is required from frontend")
     if not data.title:
         raise HTTPException(status_code=400, detail="Title is required from frontend")
-
-    # existing = db.query(CommunityInfo).filter(CommunityInfo.uuid_ip == data.uuid_ip).first()
-    # if existing:
-    #     raise HTTPException(status_code=400, detail="CommunityInfo with this uuid_ip already exists")
 
     try:
         new_entry = CommunityInfo(
@@ -1088,17 +1124,8 @@ def create_community_info(
         db.add(new_entry)
         db.commit()
         db.refresh(new_entry)
-
-        return jsonable_encoder({
-            "id": new_entry.id,
-            "state": new_entry.state,
-            "title": new_entry.title,
-            "description": new_entry.description,
-            "url": new_entry.url,
-            "is_active": new_entry.is_active,
-            "is_verified": new_entry.is_verified,
-            "email": new_entry.email,
-        })
+        
+        return new_entry
 
     except IntegrityError:
         db.rollback()

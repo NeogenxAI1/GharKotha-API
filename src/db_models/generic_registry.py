@@ -52,6 +52,9 @@ MODEL_REGISTRY = {
     "city_state":{
         "model": CityState
     },
+    "user_device_info":{
+        "model": UserDeviceInfo
+    },
     "views_tracking":{
         "model": ViewsTracking
     },
@@ -80,5 +83,6 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "community_info": generic_schemas.CommunityInfoOutput,
     "family_number_submitted": generic_schemas.FamilyNumberSubmittedOutput,
     "city_state": generic_schemas.CityStateOutput,
+    "user_device_info": generic_schemas.UserDeviceInfoOutput,
     "favorites": generic_schemas.FavoritesOutput,
 }
