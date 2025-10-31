@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from src.db_models.generic_models import UserVisitTracking, FamilyCounts, CommunityInfo, PostType, FamilyNumberSubmitted, CityState, UserDeviceInfo
+from src.db_models.generic_models import UserVisitTracking, UserDeviceInfoCreate,CommunityInfoCreate,FamilyNumberSubmittedCreate,UserTrackingUpdate,UserTrackingCreate, FamilyCounts, CommunityInfo, PostType, FamilyNumberSubmitted, CityState, UserDeviceInfo
 from functools import lru_cache
 
 router = APIRouter(prefix="/generic")
@@ -857,49 +857,49 @@ def featured_listing(
     return JSONResponse(content=jsonable_encoder(response))
 
 
-# ---------------- User Tracking For Nepal Community Web app----------------
-class UserTrackingCreate(BaseModel):
-    uuid_ip: Optional[str] = None
-    ip: Optional[str] = None
-    state: Optional[str] = None
-    city: Optional[str] = None
-    lat: Optional[float] = None
-    lon: Optional[float] = None
+# # ---------------- User Tracking For Nepal Community Web app----------------
+# class UserTrackingCreate(BaseModel):
+#     uuid_ip: Optional[str] = None
+#     ip: Optional[str] = None
+#     state: Optional[str] = None
+#     city: Optional[str] = None
+#     lat: Optional[float] = None
+#     lon: Optional[float] = None
 
-class UserTrackingUpdate(BaseModel):
-    ip: Optional[str] = None
-    state: Optional[str] = None
-    city: Optional[str] = None
-    logged_counts: Optional[int] = None
+# class UserTrackingUpdate(BaseModel):
+#     ip: Optional[str] = None
+#     state: Optional[str] = None
+#     city: Optional[str] = None
+#     logged_counts: Optional[int] = None
 
-class FamilyNumberSubmittedCreate(BaseModel):
-    uuid_ip: str
-    family_number: int
-    state: str | None = None
-    city: str | None = None
-    is_verified: bool = False
+# class FamilyNumberSubmittedCreate(BaseModel):
+#     uuid_ip: str
+#     family_number: int
+#     state: str | None = None
+#     city: str | None = None
+#     is_verified: bool = False
 
-class CommunityInfoCreate(BaseModel):
-    state: str
-    title: str 
-    description: str 
-    url: str | None = None
-    is_active: bool = True 
-    is_verified: bool = False
-    email: str 
-    created_at: datetime | None = None
-    post_type_id: int | None = None
-    is_email_sent: bool = False
-    is_promote: bool = False
+# class CommunityInfoCreate(BaseModel):
+#     state: str
+#     title: str 
+#     description: str 
+#     url: str | None = None
+#     is_active: bool = True 
+#     is_verified: bool = False
+#     email: str 
+#     created_at: datetime | None = None
+#     post_type_id: int | None = None
+#     is_email_sent: bool = False
+#     is_promote: bool = False
 
-class UserDeviceInfoCreate(BaseModel):
-    ip_uuid: str
-    device: str | None = None
-    os: str | None = None
-    browser: str | None = None
-    engine: str | None = None
-    cpu: str | None = None
-    app_version: str | None = None
+# class UserDeviceInfoCreate(BaseModel):
+#     ip_uuid: str
+#     device: str | None = None
+#     os: str | None = None
+#     browser: str | None = None
+#     engine: str | None = None
+#     cpu: str | None = None
+#     app_version: str | None = None
 
 # Simple token auth for these endpoints
 def verify_token(token: str = Header(...)):
