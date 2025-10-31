@@ -1181,7 +1181,7 @@ def get_city_states(
         q_lower = city.lower()
         results = [
             city for city in city_state_cache if q_lower in city["city_state"].lower()
-        ][:5]
+        ][:10]
         return results
 
     except HTTPException:
