@@ -64,7 +64,10 @@ MODEL_REGISTRY = {
     "favorites":{
         "model": Favorites
     },
-    
+    "my_listings":{
+        "model": MyListings,
+        "update_schema": MyListingsUpdate,
+    },
     
 }  
     
@@ -89,4 +92,5 @@ RESPONSE_SCHEMAS_REGISTRY = {
     "user_device_info": generic_schemas.UserDeviceInfoOutput,
     "post_type": generic_schemas.PostTypeOutput,
     "favorites": generic_schemas.FavoritesOutput,
+    "my_listings": generic_schemas.MyListingsOutput,
 }

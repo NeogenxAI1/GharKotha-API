@@ -337,6 +337,19 @@ class Favorites(Base):
     __tablename__ = "favorites"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    listing_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    listing_id = Column("listings_id",Integer,ForeignKey("listings.id", ondelete="CASCADE"),nullable=False,)
     user_id = Column(UUID(as_uuid=True), ForeignKey('user_profile.user_id'),nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+class MyListings(Base):
+    __tablename__ = "my_listings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    listing_id = Column("listings_id",Integer,ForeignKey("listings.id", ondelete="CASCADE"),nullable=False,)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profile.user_id'),nullable=False)
+    status = Column(String(50), server_default="published", nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+class MyListingsUpdate(BaseModel):
+    status: str | None = None
+    

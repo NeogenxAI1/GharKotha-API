@@ -1234,3 +1234,75 @@ def family_number_submitted(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@custom_router.get("/my_listings", response_model=List[ListingOut])
+def get_my_listings(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_active_user),  # enforce authentication
+):
+    """
+    Return all listings belonging to the current user via my_listings table.
+    Only includes listings where my_listings.status is 'published' or 'pending'.
+    """
+    sql = text("""
+        SELECT
+          l.id, l.title, l.price, l.status, l.views, l.created_at,
+          l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
+          s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room, s.details,
+          COALESCE(
+            ARRAY_AGG(DISTINCT i.image_url) FILTER (WHERE i.image_url IS NOT NULL AND i.image_url <> ''),
+            ARRAY[]::varchar[]
+          ) AS images,
+          NULL::double precision AS distance_km,
+          BOOL_OR(f.id IS NOT NULL) AS is_favorite,
+          MAX(f.id)                 AS favorite_id,
+          MAX(f.created_at)         AS favorite_created_at
+        FROM my_listings ml
+        JOIN listings l       ON l.id = ml.listings_id
+        LEFT JOIN listing_space s ON s.listing_id = l.id
+        LEFT JOIN image i         ON i.listing_id = l.id
+        LEFT JOIN favorites f
+               ON f.listing_id = l.id
+              AND f.user_id    = :user_id
+        WHERE ml.user_id = :user_id
+          AND ml.status IN ('published', 'pending')
+        GROUP BY
+          l.id, l.title, l.price, l.status, l.views, l.created_at,
+          l.contact_name, l.contact_number, l.location, l.latitude, l.longitude,
+          s.space_type, s.bedroom, s.bathroom, s.kitchen, s.square_feet, s.living_room, s.details
+        ORDER BY l.created_at DESC, l.id DESC;
+    """)
+
+    params = {"user_id": user_id}
+
+    rows = db.execute(sql, params).mappings().all()
+
+    out: List[ListingOut] = []
+    for r in rows:
+        out.append(ListingOut(
+            id=r["id"],
+            title=r["title"],
+            price=float(r["price"]) if r["price"] is not None else 0.0,
+            status=r["status"],
+            views=r["views"],
+            created_at=r["created_at"],
+            contact_name=r["contact_name"],
+            contact_number=str(r["contact_number"]) if r["contact_number"] is not None else "",
+            location=r["location"],
+            latitude=float(r["latitude"]) if r["latitude"] is not None else None,
+            longitude=float(r["longitude"]) if r["longitude"] is not None else None,
+            space_type=r["space_type"],
+            bedrooms=int(r["bedroom"]) if r["bedroom"] is not None else None,
+            bathroom=int(r["bathroom"]) if r["bathroom"] is not None else None,
+            kitchen=int(r["kitchen"]) if r["kitchen"] is not None else None,
+            square_feet=int(r["square_feet"]) if r["square_feet"] is not None else None,
+            living_room=int(r["living_room"]) if r["living_room"] is not None else None,
+            images=list(r["images"] or []),
+            details=r["details"],
+            distance_km=None,
+            is_favorite=bool(r["is_favorite"]),
+            favorite_id=int(r["favorite_id"]) if r["favorite_id"] is not None else None,
+            favorite_created_at=r["favorite_created_at"],
+        ))
+
+    return out
