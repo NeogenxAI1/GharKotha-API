@@ -259,3 +259,14 @@ class CityStateOutput(BaseModel):
     city_state: str  
     city:str
     state_abbr:str
+    class Config:
+        from_attributes = True
+    
+class MyListingsOutput(BaseModel):
+    id: int
+    user_id: UUID
+    listing_id: int
+    created_at: datetime | None = None
+    class Config:
+        from_attributes = True
+
