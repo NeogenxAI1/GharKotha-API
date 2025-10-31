@@ -198,7 +198,7 @@ class CommunityInfoOutput(BaseModel):
 # For Nepal Community Web App Outputs
 class FamilyNumberSubmittedOutput(BaseModel):
     id: int
-    uuid_ip: str
+    uuid_ip: str | None = None
     state: str | None = None
     city: str | None = None
     is_verified: bool | None = None
@@ -256,6 +256,6 @@ class FavoritesOutput(BaseModel):
 
 class CityStateOutput(BaseModel):
     id: int
-    city_state: str  # Combined city + state string
+    city_state: str  
     city:str
     state_abbr:str

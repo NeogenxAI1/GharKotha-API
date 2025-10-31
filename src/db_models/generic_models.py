@@ -209,7 +209,7 @@ class UserTrackingUpdate(BaseModel):
     logged_counts: int | None = None
 
 class FamilyNumberSubmittedCreate(BaseModel):
-    uuid_ip: str
+    uuid_ip: str | None = None
     family_number: int
     state: str | None = None
     city: str | None = None
@@ -284,7 +284,7 @@ class FamilyNumberSubmitted(Base):
     __tablename__ = "family_number_submitted"
 
     id = Column(Integer, primary_key=True, autoincrement=True)  
-    uuid_ip = Column(String, unique=True, nullable=False)       
+    uuid_ip = Column(String, nullable=False)       
     state = Column(String, nullable=True)
     city = Column(String, nullable=True)
     family_number = Column(Integer, nullable=False)
