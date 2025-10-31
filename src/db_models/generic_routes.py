@@ -1197,9 +1197,9 @@ def family_number_submitted(
 ):
     try:
         # Check if uuid_ip already exists
-        existing = db.query(FamilyNumberSubmitted).filter_by(uuid_ip=data.uuid_ip).first()
-        if existing:
-            raise HTTPException(status_code=400, detail="UUID already exists")
+        # existing = db.query(FamilyNumberSubmitted).filter_by(uuid_ip=data.uuid_ip).first()
+        # if existing:
+        #     raise HTTPException(status_code=400, detail="UUID already exists")
 
         # Create and save record
         new_entry = FamilyNumberSubmitted(
